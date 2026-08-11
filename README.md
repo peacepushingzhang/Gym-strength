@@ -16,7 +16,7 @@ pnpm dev
 产品通过统一的 `FitnessRepository` 支持两种模式：
 
 - `local`：前端 IndexedDB，适合个人离线使用与无配置预览。
-- `cloud`：Next.js Serverless Route Handler + Neon PostgreSQL + Drizzle + Better Auth，适合公开部署和多用户使用。
+- `cloud`：Next.js Route Handler + PostgreSQL + Drizzle + Better Auth，适合公开部署和多用户使用。数据库既可使用 Neon，也可部署在腾讯云或其他标准 PostgreSQL 环境。
 
 云端模式中，浏览器只访问 `/api/fitness`；数据库连接串和认证密钥只存在于服务端。每一笔业务查询都根据服务端验证的 session 添加 `userId` 条件，客户端不能指定其他用户的 ID。
 
@@ -31,7 +31,7 @@ BETTER_AUTH_URL=http://localhost:3000
 
 可使用 `openssl rand -base64 32` 在本机生成 `BETTER_AUTH_SECRET`。不要把 `.env.local`、数据库连接串或认证密钥提交到 GitHub。
 
-如果开发服务器实际运行在 `http://localhost:3100`，`BETTER_AUTH_URL` 也必须改为相同地址。部署到 Vercel 后，将它改为正式站点的 HTTPS 地址。
+如果开发服务器实际运行在 `http://localhost:3100`，`BETTER_AUTH_URL` 也必须改为相同地址。公开部署后，将它改为正式站点的 HTTPS 地址。
 
 ## 数据库迁移
 
@@ -69,12 +69,16 @@ pnpm test
 pnpm build
 ```
 
-## 公开发布前仍需完成
+## 腾讯云部署
 
-- 创建 Neon 项目并执行迁移。
-- 在 Vercel 配置上述服务端环境变量。
-- 接入邮件服务后启用邮箱验证和找回密码；当前邮箱密码登录适合第一阶段内测。
-- 配置正式域名后同步更新 `BETTER_AUTH_URL`。
+仓库提供一套面向腾讯云轻量应用服务器的容器部署配置：
+
+- `Dockerfile`：构建 Next.js standalone 生产镜像。
+- `compose.yaml`：运行 Next.js、PostgreSQL、数据库迁移任务和 Caddy HTTPS 反向代理。
+- `deploy/Caddyfile`：自动申请和续期 HTTPS 证书。
+- `.github/workflows/deploy-tencent.yml`：服务器配置完成后，从 GitHub `main` 自动发布。
+
+完整步骤见 [`deploy/README.md`](deploy/README.md)。生产环境仍建议接入邮件服务并启用邮箱验证和找回密码；当前邮箱密码登录适合第一阶段公开测试。
 
 ## 背景资产
 
