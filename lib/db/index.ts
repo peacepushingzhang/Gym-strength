@@ -1,4 +1,5 @@
-import { drizzle } from "drizzle-orm/neon-http";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import * as schema from "./schema";
 
 const createDatabase = () => {
@@ -8,7 +9,12 @@ const createDatabase = () => {
     throw new Error("DATABASE_URL 未配置，无法启用云端数据模式");
   }
 
-  return drizzle(databaseUrl, { schema });
+  const client = postgres(databaseUrl, {
+    max: process.env.NODE_ENV === "production" ? 10 : 2,
+    prepare: false,
+  });
+
+  return drizzle(client, { schema });
 };
 
 let database: ReturnType<typeof createDatabase> | undefined;

@@ -4,6 +4,7 @@ node_modules/
 .pnpm-store/
 .env*
 !.env.example
+!.env.server.example
 coverage/
 *.log
 *.tsbuildinfo
