@@ -15,6 +15,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Package source
+        run: |
+          tar \
+            --exclude='./.git' \
+            --exclude='./.next' \
+            --exclude='./node_modules' \
+            --exclude='./.env' \
+            --exclude='./form-fitness-release.tar.gz' \
+            -czf form-fitness-release.tar.gz .
+
       - name: Configure SSH
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
@@ -26,11 +39,15 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -p "$DEPLOY_PORT" -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
 
-      - name: Deploy main branch
+      - name: Upload and deploy main branch
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_PORT: ${{ vars.DEPLOY_PORT || '22' }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
         run: |
-          ssh -i ~/.ssh/deploy_key -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
-            'cd /opt/form-fitness && git pull --ff-only origin main && sudo docker compose up -d --build --remove-orphans'
+          ssh \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -i ~/.ssh/deploy_key \
+            -p "$DEPLOY_PORT" \
+            "$DEPLOY_USER@$DEPLOY_HOST" deploy < form-fitness-release.tar.gz
