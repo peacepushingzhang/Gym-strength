@@ -33,4 +33,4 @@ jobs:
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
         run: |
           ssh -i ~/.ssh/deploy_key -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
-            'cd /opt/form-fitness && git pull --ff-only origin main && docker compose up -d --build --remove-orphans'
+            'cd /opt/form-fitness && git pull --ff-only origin main && sudo docker compose up -d --build --remove-orphans'

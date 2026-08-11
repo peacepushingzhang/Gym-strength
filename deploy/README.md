@@ -1,12 +1,12 @@
 # 腾讯云部署手册
 
-这套配置用于腾讯云中国香港轻量应用服务器。它在一台服务器中运行 Next.js、PostgreSQL 与 Caddy，不依赖 Vercel 或 Neon；未来迁移到腾讯云中国大陆地域时无需修改应用架构。
+这套配置用于腾讯云轻量应用服务器。它在一台服务器中运行 Next.js、PostgreSQL 与 Caddy，不依赖 Vercel 或 Neon。
 
 ## 1. 服务器与域名
 
-建议起步规格：Ubuntu 24.04、2 核 CPU、至少 4 GB 内存、60 GB SSD。开放防火墙端口 `22`、`80`、`443`，数据库端口不对公网开放。
+建议起步规格：Ubuntu 24.04、2 核 CPU、2 GB 内存并启用 Swap、40 GB SSD。开放防火墙端口 `22`、`80`、`443`，数据库端口不对公网开放。
 
-将一个域名的 A 记录指向服务器公网 IP。Caddy 只有在域名解析生效且 80/443 端口可访问时才能自动签发 HTTPS 证书。
+首次部署可用 `APP_SITE_ADDRESS=:80` 和 `BETTER_AUTH_URL=http://公网IP` 通过 HTTP 验证。备案并配置域名后，将两者分别改为域名和 `https://域名`，Caddy 会自动签发 HTTPS 证书。
 
 ## 2. 安装运行环境
 
@@ -29,7 +29,7 @@ cp .env.server.example .env
 chmod 600 .env
 ```
 
-编辑 `.env`，设置域名、证书联系邮箱以及两个随机密钥：
+编辑 `.env`，设置站点地址、认证 URL 以及两个随机密钥：
 
 ```bash
 openssl rand -hex 32
@@ -41,12 +41,12 @@ openssl rand -base64 48
 启动服务：
 
 ```bash
-docker compose up -d --build
-docker compose ps
-docker compose logs --tail=100 app migrate caddy
+sudo docker compose up -d --build
+sudo docker compose ps
+sudo docker compose logs --tail=100 app migrate caddy
 ```
 
-访问 `https://你的域名/api/health`，预期返回 `{"ok":true}`。
+首次访问 `http://公网IP/api/health`，预期返回 `{"ok":true}`。启用域名后改用 `https://你的域名/api/health`。
 
 ## 4. 自动部署
 
@@ -56,7 +56,7 @@ docker compose logs --tail=100 app migrate caddy
 - Actions variable：`DEPLOY_PORT`，默认 `22`
 - Actions variable：`DEPLOY_ENABLED=true`
 
-部署用户的 SSH 公钥需要写入服务器的 `~/.ssh/authorized_keys`。之后每次推送 `main`，GitHub Actions 会在服务器执行 `git pull --ff-only` 和 `docker compose up -d --build --remove-orphans`。
+部署用户的 SSH 公钥需要写入服务器的 `~/.ssh/authorized_keys`。之后每次推送 `main`，GitHub Actions 会在服务器执行 `git pull --ff-only` 和 `sudo docker compose up -d --build --remove-orphans`。
 
 ## 5. 数据备份
 
@@ -79,10 +79,10 @@ ls -lh /opt/form-fitness-backups
 ## 6. 运维检查
 
 ```bash
-docker compose ps
-docker compose logs --tail=200 app
-docker compose pull db caddy
-docker compose up -d --build
+sudo docker compose ps
+sudo docker compose logs --tail=200 app
+sudo docker compose pull db caddy
+sudo docker compose up -d --build
 ```
 
 不要将 PostgreSQL 的 `5432` 端口映射到公网。更新系统、Docker 镜像或应用前先执行一次数据库备份。
