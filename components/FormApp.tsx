@@ -25,7 +25,12 @@ const emptyData: AppData = { bodyMetrics: [], plans: [], workouts: [], prs: [], 
 
 type DrawerId = "body" | "bodyHistory" | "workout" | "data" | null;
 
-export function FormApp() {
+interface FormAppProps {
+  userEmail?: string;
+  onSignOut?: () => Promise<void>;
+}
+
+export function FormApp({ userEmail, onSignOut }: FormAppProps) {
   const [tab, setTab] = useState<TabId>("home");
   const [drawer, setDrawer] = useState<DrawerId>(null);
   const [data, setData] = useState<AppData>(emptyData);
@@ -226,7 +231,7 @@ export function FormApp() {
     if (!file) return;
     try {
       const payload = JSON.parse(await file.text());
-      if (!window.confirm("导入会替换当前浏览器中的全部 FORM 数据，是否继续？")) return;
+      if (!window.confirm(`导入会替换当前${repositoryMode === "cloud" ? "账号" : "浏览器"}中的全部 FORM 数据，是否继续？`)) return;
       await fitnessRepository.importData(payload);
       await refresh();
       setDrawer(null);
@@ -331,13 +336,16 @@ export function FormApp() {
             <h3>{repositoryMode === "cloud" ? "已启用云端用户隔离" : "数据只保存在这个浏览器"}</h3>
             <p>
               {repositoryMode === "cloud"
-                ? "当前匿名用户的数据保存在 Supabase，并由行级安全策略隔离。导出 JSON 仍可作为独立备份。"
-                : "配置 Supabase 后可切换为云端保存；当前请定期导出 JSON 备份。恢复会替换全部记录。"}
+                ? `当前账号 ${userEmail ?? ""} 的数据通过服务端接口保存在统一数据库中。导出 JSON 仍可作为独立备份。`
+                : "配置 Neon 与 Better Auth 后可切换为云端保存；当前请定期导出 JSON 备份。恢复会替换全部记录。"}
             </p>
           </div>
           <button className="button primary wide" type="button" onClick={exportData}>导出完整备份</button>
           <input ref={importRef} className="sr-only" type="file" accept="application/json" onChange={(event) => importData(event.target.files?.[0])} />
           <button className="button secondary wide" type="button" onClick={() => importRef.current?.click()}>从备份恢复</button>
+          {repositoryMode === "cloud" && onSignOut ? (
+            <button className="button ghost wide" type="button" onClick={() => void onSignOut()}>退出登录</button>
+          ) : null}
         </div>
       </Drawer>
 

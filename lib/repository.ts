@@ -1,6 +1,6 @@
 import { fitnessDataExportSchema } from "./schemas";
 import { starterPlan } from "./starterPlan";
-import { createSupabaseRepository, isSupabaseConfigured } from "./supabaseRepository";
+import { createApiRepository } from "./apiRepository";
 import type {
   AIInsight,
   BodyMetric,
@@ -154,7 +154,7 @@ const indexedDbRepository: FitnessRepository = {
   },
 };
 
-export const repositoryMode = isSupabaseConfigured ? "cloud" : "local";
-export const fitnessRepository: FitnessRepository = isSupabaseConfigured
-  ? createSupabaseRepository()
+export const repositoryMode = process.env.NEXT_PUBLIC_DATA_MODE === "cloud" ? "cloud" : "local";
+export const fitnessRepository: FitnessRepository = repositoryMode === "cloud"
+  ? createApiRepository()
   : indexedDbRepository;

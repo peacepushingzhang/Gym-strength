@@ -1,5 +1,5 @@
-import { FormApp } from "@/components/FormApp";
+import { AuthGate } from "@/components/AuthGate";
 
 export default function HomePage() {
-  return <FormApp />;
+  return <AuthGate />;
 }

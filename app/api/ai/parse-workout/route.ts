@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
+import { isApiRequestAuthorized } from "@/lib/server/apiAuth";
 
 export const runtime = "nodejs";
 
@@ -30,6 +31,10 @@ const responseSchema = {
 };
 
 export async function POST(request: Request) {
+  if (!(await isApiRequestAuthorized(request))) {
+    return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
+  }
+
   if (!process.env.OPENAI_API_KEY) {
     return NextResponse.json({ error: "AI_NOT_CONFIGURED" }, { status: 503 });
   }
