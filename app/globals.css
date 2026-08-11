@@ -391,19 +391,23 @@ textarea:focus-visible {
 
 .status-strip {
   display: grid;
-  grid-template-columns: minmax(250px, 1.5fr) repeat(2, minmax(110px, 0.62fr)) minmax(170px, 1fr) auto;
-  gap: 24px;
+  grid-template-columns: minmax(390px, 1.45fr) repeat(2, minmax(90px, 0.5fr)) minmax(145px, 0.8fr) auto;
+  gap: 20px;
   align-items: end;
   padding: 0 0 clamp(28px, 3vw, 44px);
 }
 
+.status-heading {
+  min-width: 0;
+}
+
 .status-heading h1 {
-  max-width: 460px;
   margin: 0;
   font-family: "Arial Narrow", "Roboto Condensed", sans-serif;
-  font-size: clamp(2.15rem, 4vw, 4.1rem);
+  font-size: clamp(2.4rem, 3.2vw, 3.35rem);
   line-height: 0.96;
   letter-spacing: -0.055em;
+  white-space: nowrap;
 }
 
 .status-metric {
@@ -742,6 +746,7 @@ textarea:focus-visible {
 
 .page-heading {
   display: flex;
+  gap: 32px;
   align-items: flex-end;
   justify-content: space-between;
   min-height: 150px;
@@ -749,13 +754,22 @@ textarea:focus-visible {
   border-bottom: 1px solid var(--line);
 }
 
+.page-heading > div {
+  min-width: 0;
+}
+
 .page-heading h1 {
   max-width: 720px;
   margin: 0 0 12px;
   font-family: "Arial Narrow", "Roboto Condensed", sans-serif;
-  font-size: clamp(2.2rem, 4.6vw, 4.8rem);
+  font-size: clamp(2.6rem, 4vw, 3.65rem);
   line-height: 0.98;
   letter-spacing: -0.055em;
+  white-space: nowrap;
+}
+
+.page-heading .button {
+  flex: 0 0 auto;
 }
 
 .page-heading p:not(.eyebrow) {
@@ -1429,7 +1443,7 @@ textarea:focus-visible {
   align-items: center;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1180px) {
   .status-strip {
     grid-template-columns: 1.5fr repeat(2, 0.65fr) 1fr;
   }
@@ -1438,12 +1452,19 @@ textarea:focus-visible {
     grid-column: 1 / -1;
   }
 
+  .status-heading h1 {
+    font-size: clamp(2.4rem, 6vw, 3.35rem);
+  }
+
   .status-actions {
     grid-column: 4;
     grid-row: 2;
     align-items: stretch;
     flex-direction: column;
   }
+}
+
+@media (max-width: 1000px) {
 
   .calendar-workspace {
     grid-template-columns: minmax(0, 1fr) 250px;
@@ -1541,7 +1562,7 @@ textarea:focus-visible {
   }
 
   .status-heading h1 {
-    font-size: 2.55rem;
+    font-size: clamp(1.9rem, 10.4vw, 2.55rem);
   }
 
   .status-metric {
@@ -1636,7 +1657,7 @@ textarea:focus-visible {
   }
 
   .page-heading h1 {
-    font-size: 2.65rem;
+    font-size: clamp(1.55rem, 7.5vw, 1.9rem);
   }
 
   .page-heading .button {
